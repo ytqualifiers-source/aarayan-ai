@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aarayan AI Project</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  min-height:100vh;
+  font-family:system-ui,sans-serif;
+  background:linear-gradient(120deg,#020617,#1e293b,#020617,#0f172a);
+  background-size:500% 500%;
+  animation:bgMove 20s ease infinite;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+}
+
+@keyframes bgMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* CHAT CARD */
+.chat{
+  width:100%;
+  max-width:420px;
+  height:90vh;
+  background:rgba(255,255,255,0.06);
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  backdrop-filter:blur(14px);
+  box-shadow:0 0 40px rgba(0,0,0,.4);
+}
+
+/* HEADER */
+.header{
+  padding:16px;
+  text-align:center;
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:1px;
+  background:linear-gradient(90deg,#fff,#a5b4fc,#f9fafb,#c7d2fe);
+  background-size:300% 300%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:titleGlow 6s ease infinite;
+}
+
+@keyframes titleGlow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+.sub{
+  text-align:center;
+  font-size:12px;
+  opacity:.6;
+  margin-bottom:6px;
+}
+
+/* MESSAGES */
+.messages{
+  flex:1;
+  padding:14px;
+  overflow-y:auto;
+}
+
+.msg{
+  margin-bottom:12px;
+  padding:12px 14px;
+  border-radius:16px;
+  max-width:80%;
+  line-height:1.5;
+  animation:fadeIn .3s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(4px)}
+  to{opacity:1;transform:none}
+}
+
+.user{
+  background:#2563eb;
+  margin-left:auto;
+}
+
+.ai{
+  background:#020617;
+  border:1px solid rgba(255,255,255,.15);
+}
+
+/* THINKING DOTS */
+.thinking::after{
+  content:"";
+  animation:dots 1.4s infinite;
+}
+
+@keyframes dots{
+  0%{content:""}
+  33%{content:"."}
+  66%{content:".."}
+  100%{content:"..."}
+}
+
+/* INPUT */
+.input{
+  display:flex;
+  gap:8px;
+  padding:12px;
+}
+
+input{
+  flex:1;
+  padding:12px 14px;
+  border-radius:20px;
+  border:none;
+  outline:none;
+  background:#020617;
+  color:#fff;
+}
+
+button{
+  padding:12px 16px;
+  border:none;
+  border-radius:20px;
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+}
+button:hover{opacity:.9}
+</style>
+</head>
+
+<body>
+
+<div class="chat">
+  <div class="header">Aarayan AI Project</div>
+  <div class="sub">Friendly • Calm • Helpful</div>
+
+  <div class="messages" id="messages"></div>
+
+  <div class="input">
+    <input id="input" placeholder="Ask anything..." />
+    <button onclick="send()">Send</button>
+  </div>
+</div>
+
+<script>
+/* 🔑 PUT YOUR GEMINI API KEY HERE */
+const API_KEY = "AIzaSyD0vu_sOHizg_4-e6prq2Zi5U-nPr6YDB0";
+
+/* Personality system */
+const SYSTEM_PROMPT = `
+You are Aarayan AI.
+You are calm, friendly, respectful and helpful.
+You speak like a real human friend.
+You keep answers clear and simple.
+`;
+
+const messagesDiv = document.getElementById("messages");
+const input = document.getElementById("input");
+
+function addMessage(text,type,thinking=false){
+  const div=document.createElement("div");
+  div.className="msg "+type;
+  if(thinking) div.classList.add("thinking");
+  div.textContent=text;
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop=messagesDiv.scrollHeight;
+  return div;
+}
+
+async function send(){
+  const text=input.value.trim();
+  if(!text) return;
+
+  addMessage(text,"user");
+  input.value="";
+
+  const thinkingMsg=addMessage("Aarayan AI is thinking","ai",true);
+
+  try{
+    const res=await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key="+API_KEY,
+      {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          contents:[
+            {parts:[{text:SYSTEM_PROMPT}]},
+            {parts:[{text:text}]}
+          ]
+        })
+      }
+    );
+
+    const data=await res.json();
+    thinkingMsg.remove();
+
+    const reply=
+      data.candidates?.[0]?.content?.parts?.[0]?.text
+      || "I’m here, but I couldn’t think of a reply.";
+
+    addMessage(reply,"ai");
+
+  }catch(err){
+    thinkingMsg.remove();
+    addMessage("Connection error. Please try again.","ai");
+  }
+}
+
+/* Enter key support */
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter") send();
+});
+</script>
+
+</body>
+</html>
