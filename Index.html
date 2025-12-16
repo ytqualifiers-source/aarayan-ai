@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Read If You Dare</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: "Georgia", serif;
+}
+
+body{
+  background:#050505;
+  color:#ededed;
+}
+
+/* HEADER */
+header{
+  text-align:center;
+  padding:70px 20px 40px;
+}
+header h1{
+  font-size:38px;
+  letter-spacing:4px;
+}
+header p{
+  margin-top:14px;
+  opacity:.6;
+  font-size:15px;
+}
+
+/* TOPIC NAV */
+.nav{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:14px;
+  margin-bottom:40px;
+}
+.nav button{
+  padding:12px 24px;
+  border-radius:30px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  cursor:pointer;
+}
+.nav button:hover{
+  background:rgba(255,255,255,.16);
+}
+
+/* CHAPTER */
+.chapter{
+  max-width:900px;
+  margin:30px auto;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 25px 60px rgba(0,0,0,.85);
+}
+.bg{
+  min-height:440px;
+  background-size:cover;
+  background-position:center;
+  position:relative;
+}
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(0,0,0,.35),rgba(0,0,0,.9));
+}
+.content{
+  position:relative;
+  padding:36px;
+}
+.content h2{
+  color:#d6b36a;
+  font-size:26px;
+  margin-bottom:18px;
+}
+.content p{
+  line-height:1.85;
+  font-size:16px;
+  opacity:.92;
+  margin-bottom:14px;
+}
+
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:50px 10px;
+  font-size:13px;
+  opacity:.4;
+}
+
+/* FLOATING DUST */
+.particle{
+  position:fixed;
+  width:6px;
+  height:6px;
+  background:rgba(255,255,255,.35);
+  border-radius:50%;
+  animation:rise linear infinite;
+}
+@keyframes rise{
+  from{transform:translateY(100vh);opacity:0}
+  20%{opacity:.6}
+  to{transform:translateY(-120vh);opacity:0}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Read If You Dare</h1>
+  <p>A calm informational reading experience</p>
+</header>
+
+<div class="nav">
+  <button onclick="openChapter('beginning')">Beginning</button>
+  <button onclick="openChapter('human')">Human Nature</button>
+  <button onclick="openChapter('discipline')">Discipline</button>
+  <button onclick="openChapter('ethics')">Daily Ethics</button>
+  <button onclick="openChapter('animals')">Animals & Balance</button>
+  <button onclick="openChapter('reality')">Reality of You</button>
+</div>
+
+<div id="book"></div>
+
+<footer>
+Built as a quiet, book-style web project
+</footer>
+
+<script>
+const chapters = {
+
+beginning:{
+img:"https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d",
+text:`
+<h2>Beginning</h2>
+<p>
+This is not motivation.
+This is not instruction.
+This is not persuasion.
+</p>
+<p>
+What follows is observation.
+Clear, slow, and deliberate.
+</p>
+<p>
+Nothing here demands belief.
+Nothing here asks permission.
+</p>
+<p>
+You may leave at any point.
+You may stay without agreement.
+</p>
+<p>
+Clarity often begins when noise ends.
+</p>
+`
+},
+
+human:{
+img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+text:`
+<h2>Human Nature</h2>
+<p>
+Human behavior is largely predictable.
+Not because people lack depth,
+but because patterns repeat under pressure.
+</p>
+<p>
+Attention follows reward.
+Behavior follows environment.
+Reaction follows habit.
+</p>
+<p>
+Understanding this removes surprise.
+And surprise is where most errors begin.
+</p>
+`
+},
+
+discipline:{
+img:"https://images.unsplash.com/photo-1506784983877-45594efa4cbe",
+text:`
+<h2>Discipline</h2>
+<p>
+Discipline is not force.
+It is structure.
+</p>
+<p>
+Well-designed days reduce resistance.
+Systems decide outcomes long before effort appears.
+</p>
+<p>
+Consistency outperforms intensity.
+Quiet routines shape durable results.
+</p>
+`
+},
+
+ethics:{
+img:"https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d",
+text:`
+<h2>Daily Ethics</h2>
+<p>
+Ethics rarely announce themselves.
+They appear in ordinary moments.
+</p>
+<p>
+Precision in speech.
+Restraint in reaction.
+Responsibility without reward.
+</p>
+<p>
+Reputation forms quietly.
+</p>
+`
+},
+
+animals:{
+img:"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
+text:`
+<h2>Animals & Balance</h2>
+<p>
+Animals respond to conditions,
+not intention.
+</p>
+<p>
+Stability creates trust.
+Disruption creates fear.
+</p>
+<p>
+This principle extends beyond ecosystems.
+</p>
+`
+},
+
+reality:{
+img:"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
+text:`
+<h2>Reality of You</h2>
+<p>
+Most people already know
+what would improve their life.
+</p>
+<p>
+Delay is rarely confusion.
+It is negotiation with discomfort.
+</p>
+<p>
+Habits reveal priorities.
+Time confirms them.
+</p>
+`
+}
+
+};
+
+function openChapter(key){
+  const c = chapters[key];
+  document.getElementById("book").innerHTML = `
+    <div class="chapter">
+      <div class="bg" style="background-image:url('${c.img}')">
+        <div class="overlay"></div>
+        <div class="content">${c.text}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* floating calm particles */
+for(let i=0;i<20;i++){
+  let p=document.createElement("div");
+  p.className="particle";
+  p.style.left=Math.random()*100+"vw";
+  p.style.animationDuration=(8+Math.random()*10)+"s";
+  document.body.appendChild(p);
+}
+</script>
+
+</body>
+</html>
